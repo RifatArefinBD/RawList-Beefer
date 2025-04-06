@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RawList Beefer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background: radial-gradient(ellipse at center, #0f0f0f 0%, #1a0000 100%);
+            color: #ff4d4d;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            top: 0;
+            left: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 30px 20px;
+            max-width: 600px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px red);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #ff1a1a;
+            text-shadow: 0 0 20px red, 0 0 40px darkred;
+            animation: flicker 1.5s infinite alternate;
+            margin-bottom: 30px;
+        }
+
+        @keyframes flicker {
+            from { opacity: 1; }
+            to { opacity: 0.7; text-shadow: 0 0 30px red, 0 0 60px #ff1a1a; }
+        }
+
+        label {
+            color: #ff9999;
+            margin-top: 15px;
+            align-self: flex-start;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #111;
+            border: 1px solid #ff1a1a;
+            color: white;
+            border-radius: 6px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        input[type="range"] {
+            accent-color: #ff1a1a;
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: #ff1a1a;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            box-shadow: 0 0 10px red;
+        }
+
+        button:hover {
+            background-color: #cc0000;
+            box-shadow: 0 0 20px red;
+        }
+
+        p {
+            color: #fff;
+            margin-top: -15px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .logo {
+                max-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <!-- Logo (optional) -->
+        <img src="logo.webp" alt="Logo" class="logo" id="logo" style="display: none;">
+
+        <h1>⚔ RawList Beefer ⚔</h1>
+
+        <label for="token">Token:</label>
+        <input type="text" id="token" placeholder="Enter Token">
+
+        <label for="channelId">Channel ID:</label>
+        <input type="text" id="channelId" placeholder="Enter Channel ID">
+
+        <label for="userId">User ID to mention:</label>
+        <input type="text" id="userId" placeholder="Enter User ID">
+
+        <label for="messages">Messages:</label>
+        <textarea id="messages" rows="7" placeholder="One message per line..."></textarea>
+
+        <label for="delay">Delay (0.1–10 seconds):</label>
+        <input type="range" id="delay" min="1" max="100" step="1" onchange="updateDelay(this.value/10)">
+        <p>Current delay: <span id="currentDelay">0.1</span> sec</p>
+
+        <button onclick="sendMessages()">🔥 Launch Beef</button>
+    </div>
+
+    <!-- ParticleJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 90 },
+                "color": { "value": "#ff1a1a" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.6, "random": true },
+                "size": { "value": 3, "random": true },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 130,
+                    "color": "#ff3333",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2
+                }
+            }
+        });
+    </script>
+
+    <script>
+        let currentDelay = 0.1;
+        function updateDelay(value) {
+            currentDelay = value;
+            document.getElementById("currentDelay").textContent = currentDelay.toFixed(1);
+        }
+
+        function sendMessages() {
+            const token = document.getElementById("token").value;
+            const channelId = document.getElementById("channelId").value;
+            const userId = document.getElementById("userId").value;
+            const messages = document.getElementById("messages").value.split("\n");
+
+            messages.forEach((message, index) => {
+                setTimeout(() => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", `https://discord.com/api/v9/channels/${channelId}/messages`, true);
+                    xhr.setRequestHeader("Authorization", token);
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                            console.log("Beefed: 🔪 <@" + userId + "> " + message);
+                        }
+                    };
+                    xhr.send(JSON.stringify({ content: `# 🔪 ${message} <@${userId}>` }));
+                }, index * currentDelay * 1000);
+            });
+
+            document.getElementById("messages").value = "";
+        }
+
+        // Show logo if exists
+        const logoURL = "logo.webp"; // Replace with your logo file path
+        if (logoURL && logoURL !== "") {
+            const logo = document.getElementById("logo");
+            logo.src = logoURL;
+            logo.style.display = "block";
+        }
+    </script>
+</body>
+</html>
